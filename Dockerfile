@@ -1,17 +1,15 @@
 FROM python:3.11-slim
 
-# Install V2Ray
 RUN apt-get update && apt-get install -y curl unzip && \
     curl -L -o /tmp/v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip && \
     unzip /tmp/v2ray.zip -d /usr/local/bin && \
     chmod +x /usr/local/bin/v2ray && \
-    apt-get remove -y curl unzip && apt-get clean
+    apt-get remove -y curl unzip && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY config.json /etc/v2ray/config.json
+WORKDIR /app
+COPY . .
 
-# Copy healthcheck server
-COPY healthcheck.py /app/healthcheck.py
+EXPOSE 8080
 
-EXPOSE 80 8080
-
-CMD ["sh", "-c", "python3 /app/healthcheck.py & v2ray run -c /etc/v2ray/config.json"]
+CMD ["python3", "run.py"]
